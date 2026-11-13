@@ -1,0 +1,35 @@
+services:
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4
+    container_name: top-music-lavalink
+    restart: unless-stopped
+    environment:
+      _JAVA_OPTIONS: "-Xmx1G"
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
+    expose:
+      - "2333"
+    networks:
+      - topmusic
+
+  bot:
+    image: node:22-bookworm-slim
+    container_name: top-music-bot
+    working_dir: /app
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+      - bot_node_modules:/app/node_modules
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - lavalink
+    networks:
+      - topmusic
+
+networks:
+  topmusic:
+
+volumes:
+  bot_node_modules:
